@@ -5,7 +5,6 @@ Welcome to pManager's Documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   packages
    modules
    classes
    errors

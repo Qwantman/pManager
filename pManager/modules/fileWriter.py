@@ -5,6 +5,8 @@ import os
 
 class WriterError(Exception):
 
+    """Base class for exceptions in the writer module."""
+
     def __init__(self, message, filename=None):
         self.message = message
         self.filename = filename
@@ -14,12 +16,14 @@ class WriterError(Exception):
 
 class fileWriter:
 
-    def __init__(self, filename):
+    def __init__(self, filename, autoFlush = True, ignoreExtension = False):
 
         self.__portNumError = WriterError('Port should be number', filename)
 
         # Variables; consts
-        self.__filename = filename # Shadows filename into class scope
+        self.__autoFlush = autoFlush
+        if ignoreExtension: self.__filename = filename
+        else: self.__filename = filename if filename.endswith(".qpmgr") else f"{filename}.qpmgr" # Shadows filename into class scope
         self.__servicesList = {} # Parsed information from .qpmgr file w/service as key
         self.__stateTable = {"O" : True, "C" : False}
         self.__serviceRecordMask = "$SERVICE -- $PORTSINFO || $SERVICEDESCRIPTION"
@@ -47,6 +51,11 @@ class fileWriter:
                 self.constructServiceObj(_, existingServicesList[_]['ports'], existingServicesList[_]['description'])
 
     def __flushFile(self):
+
+        """
+        Flushes data to file
+        """
+
         with open(self.__filename, 'w') as file:
 
             file.write(self.__fileHeader)
@@ -57,7 +66,19 @@ class fileWriter:
                            .replace('$SERVICEDESCRIPTION', self.__servicesList[srv].getServiceDescription(), 1) + '\n'
                            )
 
-    def constructServiceObj(self, serviceName, portList=None, serviceDescription ="No description") -> Service:
+    def constructServiceObj(self, serviceName, serviceDescription ="No description", portList=None) -> Service:
+
+        """
+        Creates service object and adds it to the list
+
+        Args:
+            serviceName (str): Name of the service
+            serviceDescription (str): Description of the service
+            portList (dict): Dictionary of ports, where key is port number and value is port object
+
+        Returns:
+            Service (pManager.dataModels.models.Service): Created service object
+        """
 
         srv = Service(serviceName, portList, serviceDescription)
         self.addService(srv)
@@ -65,11 +86,35 @@ class fileWriter:
 
     def bindPortToService(self, serviceName, portNum, portProto, openState, portDesc ="No description") -> Port:
 
+        """
+        Binds port to existing service
+
+        Args:
+            serviceName (str): Name (key) of the service
+            portNum (int): Port number
+            portProto (str): Protocol of the port
+            openState (bool): State of the port
+            portDesc (str): Description of the port
+
+        Returns:
+            Port (pManager.dataModels.models.Port): Port object that was created
+        """
+
         port = Port(serviceName, portNum, portProto, openState, portDesc)
         self.addPort(port)
         return Port(serviceName, portNum, portProto, openState, portDesc)
 
     def addService(self, serviceObj: Service):
+
+        """
+        Adds service to the list
+
+        Args:
+            serviceObj (pManager.dataModels.models.Service): Service object
+
+        Raises:
+            WriterError: If the service object is not of type Service
+        """
 
         if type(serviceObj) == Service:
             self.__servicesList[serviceObj.getServiceName()] = serviceObj
@@ -78,6 +123,16 @@ class fileWriter:
 
     def addPort(self, portObj: Port):
 
+        """
+        Adds port to existing service
+
+        Args:
+            portObj (pManager.dataModels.models.Port): Port object
+
+        Raises:
+            WriterError: If the port object is not of type Port
+        """
+
         if type(portObj) == Port:
 
             if self.__servicesList[portObj.getServiceName()].isPortsAdded:
@@ -85,7 +140,7 @@ class fileWriter:
             else:
                 self.__servicesList[portObj.getServiceName()].addPortToService(portObj.getPortAsJson())
 
-            self.__flushFile()
+            if self.__autoFlush: self.__flushFile()
 
         else:
 
@@ -93,8 +148,19 @@ class fileWriter:
 
     def getServiceList(self):
 
+        """
+        Returns dictionary of services
+
+        Returns:
+            dict: Dictionary of services
+        """
+
         return self.__servicesList
 
     def writeToFile(self):
+
+        """
+        Writes service list to file
+        """
 
         self.__flushFile()

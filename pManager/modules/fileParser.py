@@ -27,10 +27,11 @@ class FormatError(ParserError):
 
 class fileParser:
 
-    def __init__(self, filename):
+    def __init__(self, filename, ignoreExtension = False):
 
         # Variables
-        self.__filename = filename # Shadows filename into class scope
+        if ignoreExtension: self.__filename = filename
+        else: self.__filename = filename if filename.endswith(".qpmgr") else f"{filename}.qpmgr"
         self.__servicesList = {} # Parsed information from .qpmgr file w/service as key
         self.__portList = {} # Parsed information from .qpmgr file w/port as key, w/o service description
         self.__openedPorts = []
@@ -99,30 +100,88 @@ class fileParser:
                 else: self.__closedPorts.append(port)
 
     def getOpenedPorts(self) -> list:
+
+        """
+        Returns list of opened ports
+
+        Returns:
+            list: List of opened ports
+        """
+
         if (self.__openedPorts == {}) or (self.__closedPorts == {}): self.__fetchPorts()
         return self.__openedPorts
 
     def getClosedPorts(self) -> list:
+
+        """
+        Returns list of closed ports
+
+        Returns:
+            list: List of closed ports
+        """
+
         if (self.__openedPorts == {}) or (self.__closedPorts == {}): self.__fetchPorts()
         return self.__closedPorts
 
     def getServicesList(self) -> list:
+
+        """
+        Returns list of services
+
+        Returns:
+            list: List of services
+        """
+
         if self.__servicesList == {}: self.__parseFile()
         return list(self.__servicesList.keys())
 
     def getOpenedPortsByService(self, serviceName) -> list:
+
+        """
+        Returns list of opened ports by service
+
+        Args:
+            serviceName (str): Name of the service
+
+        Returns:
+            list: List of opened ports
+        """
+
         if self.__servicesList == {}: self.__parseFile()
         serviceInfo = self.__servicesList.get(serviceName)
         if serviceInfo is None: raise self.__unknownServiceError
         return list(map(str, serviceInfo['ports'].keys()))
 
     def getDescriptionByService(self, serviceName) -> str:
+
+        """
+        Returns description of the service by it\'s name
+
+        Args:
+            serviceName (str): Name of the service
+
+        Returns:
+            str: Description of the service
+        """
+
         if self.__servicesList == {}: self.__parseFile()
         serviceInfo = self.__servicesList.get(serviceName)
         if serviceInfo is None: raise self.__unknownServiceError
         return serviceInfo['description']
 
     def getBeautifuledInfoByService(self, serviceName) -> str:
+
+
+        """
+        Returns string with beautifuled information about the service by it\'s name
+
+        Args:
+            serviceName (str): Name of the service
+
+        Returns:
+            str: String with beautifuled information about the service
+        """
+
         if self.__servicesList == {}: self.__parseFile()
         return \
 f'''\
@@ -132,27 +191,76 @@ Description: {self.getDescriptionByService(serviceName)}\
 '''
 
     def getServiceByPort(self, portNum) -> str:
+
+        """
+        Returns service name by port number
+
+        Args:
+            portNum (int): Number of the port
+
+        Returns:
+            str: Service name
+        """
+
         if self.__portList == {}: self.__parseFile()
         portInfo = self.__portList.get(portNum)
         if portInfo is None: raise self.__unknownPortError
         return portInfo['serviceName']
 
     def getDescriptionByPort(self, portNum) -> str:
+
+        """
+        Returns description of the port by its number
+
+        Args:
+            portNum (int): Number of the port
+
+        Returns:
+            str: Description of the port
+        """
+
         if self.__servicesList == {}: self.__parseFile()
         portInfo = self.__portList.get(portNum)
-        if portInfo is None: raise self.__unknownServiceError
+        if portInfo is None: raise self.__unknownPortError
         return portInfo['description']
 
     def getProtocolByPort(self, portNum) -> str:
+
+        """
+        Returns protocol of the port by its number
+
+        Args:
+            portNum (int): Number of the port
+
+        Returns:
+            str: Protocol of the port
+        """
+
         if self.__portList == {}: self.__parseFile()
         portInfo = self.__portList.get(portNum)
         if portInfo is None: raise self.__unknownPortError
         return portInfo['protocol']
 
     def getPlainServiceList(self) -> dict:
+
+        """
+        Returns dictionary with plain service list
+
+        Returns:
+            dict: Plain service list
+        """
+
         if self.__servicesList == {}: self.__parseFile()
         return self.__servicesList
 
     def getPlainPortList(self) -> dict:
+
+        """
+        Returns dictionary with plain port list
+
+        Returns:
+            dict: Plain port list
+        """
+
         if self.__portList == {}: self.__parseFile()
         return self.__portList

@@ -24,7 +24,7 @@ Reading from a `.qpmgr` file:
 
     # Print beautifully-formated services list
     for _ in servicesList:
-        print(f'{parser.getBeautifuledInfoByService(i)}\n')
+        print(f'{parser.getBeautifuledInfoByService(_)}\n')
 
 Writing to a `.qpmgr` file:
 

@@ -16,7 +16,20 @@ class WriterError(Exception):
 
 class fileWriter:
 
+    """
+    Class for writing or updating .qpmgr files
+    """
+
     def __init__(self, filename, autoFlush = True, ignoreExtension = False):
+
+        """
+        Constructor for fileWriter class
+
+        Args:
+            filename (str): Path to the file
+            autoFlush (bool): Whether to flush data to file or not
+            ignoreExtension (bool): Whether to ignore file extension or not
+        """
 
         self.__portNumError = WriterError('Port should be number', filename)
 
@@ -48,7 +61,7 @@ class fileWriter:
             fp = fileParser(self.__filename)
             existingServicesList = fp.getPlainServiceList()
             for _ in existingServicesList.keys():
-                self.constructServiceObj(_, existingServicesList[_]['ports'], existingServicesList[_]['description'])
+                self.constructServiceObj(_, existingServicesList[_]['description'], existingServicesList[_]['ports'])
 
     def __flushFile(self):
 
@@ -80,7 +93,7 @@ class fileWriter:
             Service (pManager.dataModels.models.Service): Created service object
         """
 
-        srv = Service(serviceName, portList, serviceDescription)
+        srv = Service(serviceName=serviceName, serviceDescription=serviceDescription, portList=portList)
         self.addService(srv)
         return srv
 

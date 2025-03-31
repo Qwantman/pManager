@@ -27,7 +27,19 @@ class FormatError(ParserError):
 
 class fileParser:
 
+    """
+    Class for parsing .qpmgr file
+    """
+
     def __init__(self, filename, ignoreExtension = False):
+
+        """
+        Constructor for fileParser class
+
+        Args:
+            filename (str): Path to the file
+            ignoreExtension (bool): Whether to ignore file extension or not
+        """
 
         # Variables
         if ignoreExtension: self.__filename = filename

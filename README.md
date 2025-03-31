@@ -8,10 +8,12 @@ It includes two classes: `fileParser` and `fileWriter`. \
 `fileParser` is used for parsing .qpmgr files and extracting information. \
 `fileWriter` is used for creating new .qpmgr files or editing existing ones.
 
+This library is guaranteed to work on python versions > 3.10, but it's compatible with any python version > 3.0.
+
+## [Read The Docs](https://pmanager.readthedocs.io/en/latest/index.html)
 
 ## Links
-[![PyPI Version](https://img.shields.io/pypi/v/portsManager.svg)](https://pypi.org/project/portsManager/) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/portsManager.svg) ![PyPI - License](https://img.shields.io/pypi/l/portsManager.svg)
-
+[![PyPI Version](https://img.shields.io/pypi/v/portsManager.svg)](https://pypi.org/project/portsManager/) ![PyPI - License](https://img.shields.io/pypi/l/portsManager.svg)
 
 ## Installation
 
@@ -23,7 +25,7 @@ It includes two classes: `fileParser` and `fileWriter`. \
 ### Parser
 
     from pManager import fileParser
-    parser = fileParser("file.qpmgr")
+    parser = fileParser("file.qpmgr", ignoreExtension = False)
 
     # Get opened & closed ports
     openedPorts = parser.getOpenedPorts()
@@ -42,7 +44,7 @@ It includes two classes: `fileParser` and `fileWriter`. \
     from pManager import fileWriter
 
     # Setting up writer
-    writer = fileWriter("file.qpmgr", autoFlush = True)
+    writer = fileWriter("file.qpmgr", autoFlush = True, ignoreExtension = False)
 
     # Add new service
     # "ServiceName" will be used as a key to bind ports

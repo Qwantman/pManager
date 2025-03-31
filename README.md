@@ -36,7 +36,7 @@ This library is guaranteed to work on python versions > 3.10, but it's compatibl
 
     # Print beautifully-formated services list
     for _ in servicesList:
-        print(f'{parser.getBeautifuledInfoByService(i)}\n')
+        print(f'{parser.getBeautifuledInfoByService(_)}\n')
 
 
 ### Writer
